@@ -140,12 +140,13 @@ if __name__ == '__main__':
     del parser
 
     # 自动调整的参数
-    if args.workers < 0:
-        if args.cache_images:
-            args.workers = 1
-        else:
-            args.workers = os.cpu_count()
-    args.workers = min(os.cpu_count(), args.workers)
+    # if args.workers < 0:
+    #     if args.cache_images:
+    #         args.workers = 1
+    #     else:
+    #         args.workers = os.cpu_count()
+    # args.workers = min(os.cpu_count(), args.workers)
+    args.workers=0
 
     # 打印参数
     logger.info("args: %s" % args)

@@ -13,18 +13,22 @@ class ImgType(Enum):
     图片类型
     元素为: (存储目录, 描述)
     """
-    base = ("ccpd_base", "正常车牌")
-    challenge = ("ccpd_challenge", "比较有挑战性的车牌")
-    db = ("ccpd_db", "光线较暗或较亮")
-    fn = ("ccpd_fn", "距离摄像头较远或较近")
-    np = ("ccpd_np", "没上牌的新车")
-    rotate = ("ccpd_rotate", "水平倾斜20-50°，垂直倾斜-10-10°")
-    tilt = ("ccpd_tilt", "水平倾斜15-45°，垂直倾斜15-45°")
-    weather = ("ccpd_weather", "雨天、雪天或者雾天的车牌")
+    # base = ("ccpd_base", "正常车牌")
+    # challenge = ("ccpd_challenge", "比较有挑战性的车牌")
+    # db = ("ccpd_db", "光线较暗或较亮")
+    # fn = ("ccpd_fn", "距离摄像头较远或较近")
+    # np = ("ccpd_np", "没上牌的新车")
+    # rotate = ("ccpd_rotate", "水平倾斜20-50°，垂直倾斜-10-10°")
+    # tilt = ("ccpd_tilt", "水平倾斜15-45°，垂直倾斜15-45°")
+    # weather = ("ccpd_weather", "雨天、雪天或者雾天的车牌")
+    base_selected = ("ccpd_base_selected", "正常车牌")
+    blur_selected = ("ccpd_blur_selected", "比较有挑战性的车牌")
+    fn_selected = ("ccpd_fn_selected", "距离摄像头较远或较近")
+    rotate_selected = ("ccpd_rotate_selected", "水平倾斜20-50°，垂直倾斜-10-10°")
 
 
 class Img(object):
-    def __init__(self, src: str, img_type: ImgType, label: str = None, rect: [int] = None):
+    def __init__(self, src: str, img_type: ImgType, label: str = None, rect = None):
         """
         :param src: 图片路径
         :param img_type: 图片类型
@@ -109,12 +113,8 @@ def load_ccpd_imgs(source_dir):
         img_list = []
         for filename in os.listdir(folder_path):
             filepath = os.path.join(folder_path, filename)
-            if img_type == ImgType.np:
-                img = Img(filepath, img_type)
-                img_list.append(img)
-            else:
-                img = load_img(filepath, filename, img_type)
-                img_list.append(img)
+            img = load_img(filepath, filename, img_type)
+            img_list.append(img)
         imgs[img_type] = img_list
 
     save_cache('cache_sourceset.pt', {

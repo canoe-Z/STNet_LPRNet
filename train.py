@@ -233,7 +233,7 @@ if __name__ == '__main__':
     parser.add_argument('--test-batch-size',  type=int,            default=-1,        help='test batch size(default=batch-size).')
 
     parser.add_argument('--adam',             action='store_true',                    help='use torch.optim.Adam() optimizer.')
-    parser.add_argument('--lr',               type=float,          default=.003,      help='initial learning rate.')
+    parser.add_argument('--lr',               type=float,          default=.0005,      help='initial learning rate.')
     parser.add_argument('--momentum',         type=float,          default=.9,        help='SGD momentum/Adam beta1.')
     parser.add_argument('--st-weight-decay', type=float,          default=2e-5,       help='STNet optimizer weight decay.')
     parser.add_argument('--lpr-weight-decay', type=float,          default=1e-5,      help='LPRNet optimizer weight decay.')

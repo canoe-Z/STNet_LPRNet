@@ -4,9 +4,10 @@ import logging
 import random
 import time
 
-import accimage
+from PIL import Image
 import numpy as np
 import torch
+import torchvision.transforms as transforms
 from torch.utils.data import *
 from tqdm import tqdm
 
@@ -20,13 +21,15 @@ CHARS_DICT = {char: i for i, char in enumerate(CHARS)}
 
 class LPRDataSet(Dataset):
     def __init__(self, img_size, start_rate, size_rate, cache=False):
-        data_set = imgs[ImgType.base] + imgs[ImgType.challenge] + imgs[ImgType.db] + imgs[ImgType.fn] + imgs[ImgType.rotate] + imgs[ImgType.tilt] + imgs[ImgType.weather]
+        data_set = imgs[ImgType.base_selected] + imgs[ImgType.blur_selected] + \
+            imgs[ImgType.fn_selected] + imgs[ImgType.rotate_selected]
         random.seed(73)  # 随意设置，42 也成，12345678 也成，只要训练的过程中不变即可
         random.shuffle(data_set)
 
         total_img_count = len(data_set)
         start = int(total_img_count * start_rate)
-        end = min(total_img_count - 1, start + int(total_img_count * size_rate))
+        end = min(total_img_count - 1, start +
+                  int(total_img_count * size_rate))
         self.data_set = data_set[start:end]
         self.len = len(self.data_set)
         self.img_size = img_size
@@ -35,7 +38,8 @@ class LPRDataSet(Dataset):
             self.images = []
             since = time.time()
             self.preload(start_rate, size_rate)
-            logger.info("Cache %d images used %.2fs." % (len(self.images), time.time() - since))
+            logger.info("Cache %d images used %.2fs." %
+                        (len(self.images), time.time() - since))
 
             del self.data_set
             del self.img_size
@@ -45,14 +49,16 @@ class LPRDataSet(Dataset):
     def preload(self, start_rate, size_rate):
         image_count = len(self)
 
-        cache_file_name = 'cache_dataset_%.6f_%.6f.pt' % (start_rate, size_rate)
+        cache_file_name = 'cache_dataset_%.6f_%.6f.pt' % (
+            start_rate, size_rate)
         images = load_cache(cache_file_name, 'dataset')
         if images and len(images) == image_count:
             self.images = images
             logger.info("Use cache file %s." % cache_file_name)
             return
 
-        logger.info("Cache file %s not found, start load images..." % cache_file_name)
+        logger.info("Cache file %s not found, start load images..." %
+                    cache_file_name)
         pbar = tqdm(range(image_count), desc='Load images')
         for idx in pbar:
             image = self.load_img(idx)
@@ -62,7 +68,7 @@ class LPRDataSet(Dataset):
 
     def load_img(self, idx):
         img = self.data_set[idx]
-        image = accimage.Image(img.src)
+        image = Image.open(img.src)
 
         # 裁剪
         image.crop(img.rect)
@@ -71,9 +77,8 @@ class LPRDataSet(Dataset):
         image = image.resize(self.img_size)
 
         # to tensor
-        n = np.empty([image.channels, image.height, image.width], dtype=np.uint8)
-        image.copyto(n)
-        image = torch.from_numpy(n)
+        tran = transforms.ToTensor()
+        image = tran(image)
 
         label = []
         for c in img.label:
